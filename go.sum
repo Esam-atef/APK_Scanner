@@ -1,0 +1,4 @@
+github.com/avast/apkparser v0.0.0-20260423123151-7fcaee440f68 h1:+7UZ0vN+mEIzkjcgC5ZUzTV+ikKqCrfK06OyVCQyzAo=
+github.com/avast/apkparser v0.0.0-20260423123151-7fcaee440f68/go.mod h1:3F9A8btIerUcuy7Fmno+g/nIk4ELKJ6NCs2/KK1bvLs=
+github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
