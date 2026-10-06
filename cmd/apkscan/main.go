@@ -9,11 +9,11 @@ import (
 	"sort"
 	"strings"
 
-	"apkscan/internal/detector"
-	"apkscan/internal/dex"
-	"apkscan/internal/extractor"
-	"apkscan/internal/manifest"
-	"apkscan/internal/output"
+	"github.com/Esam-atef/APK_Scanner/internal/detector"
+	"github.com/Esam-atef/APK_Scanner/internal/dex"
+	"github.com/Esam-atef/APK_Scanner/internal/extractor"
+	"github.com/Esam-atef/APK_Scanner/internal/manifest"
+	"github.com/Esam-atef/APK_Scanner/internal/output"
 )
 
 func main() {
@@ -38,7 +38,7 @@ func run(args []string) int {
 		return 1
 	}
 
-	printBanner(os.Stderr) 
+	printBanner(os.Stderr)
 
 	if opts.mode == modeManifest {
 		return runManifest(apkPaths[0])
@@ -79,7 +79,6 @@ func withPathHint(err error) error {
 	return err
 }
 
-
 func checkFile(p string) error {
 	st, err := os.Stat(p)
 	if err != nil {
@@ -102,6 +101,7 @@ func resolveInputs(opts options) ([]string, error) {
 		return opts.paths, nil
 
 	case modeDir:
+
 		dir := strings.TrimRight(opts.paths[0], `"`)
 		st, err := os.Stat(dir)
 		if err != nil {

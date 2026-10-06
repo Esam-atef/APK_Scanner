@@ -18,90 +18,110 @@ Knowing the technology is the first step of mobile analysis: it decides which to
 
 ## Installation
 
-APK Scanner is built from source. You need **Go 1.22 or newer** and an internet connection for the first build (it downloads two small Go modules).
+You need **Go 1.22 or newer** and an internet connection while installing. Go downloads the dependencies (two small modules) automatically and compiles them into the binary, so the finished tool is a single standalone file with nothing else to install.
 
-First get the project folder (the one that contains `go.mod`) onto your machine, then follow the section for your system.
+### Prerequisite: install Go
 
-### Windows
+**Windows**
 
-1. Install Go: download the `.msi` installer from <https://go.dev/dl/> and run it.
+1. Download the `.msi` installer from <https://go.dev/dl/> and run it.
 2. Open a **new** PowerShell window and check that it works:
 
    ```powershell
    go version
    ```
 
-3. Build:
+**Linux**
 
-   ```powershell
-   cd path\to\apkscan          # the folder that contains go.mod
-   go mod tidy
-   go build -o apkscan.exe .\cmd\apkscan
-   ```
+Some distributions ship an older Go than 1.22, so the official tarball is the safest option. Download the Linux archive for your CPU from <https://go.dev/dl/>, then:
 
-4. Run it:
+```bash
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go*.linux-amd64.tar.gz      # use ...linux-arm64... on ARM
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
+```
 
-   ```powershell
-   .\apkscan.exe -h
-   ```
+Log out and back in (or run `source ~/.profile`), then check:
+
+```bash
+go version
+```
+
+**macOS**
+
+```bash
+brew install go        # or use the .pkg installer from https://go.dev/dl/
+go version
+```
+
+### Option 1: Install with `go install` (recommended)
+
+`go install` downloads, builds and places the binary in Go's `bin` folder (`~/go/bin` on Linux and macOS, `%USERPROFILE%\go\bin` on Windows, unless `GOPATH` is customized). Then move it to a system-wide folder so you can run `apkscan` from anywhere.
+
+#### Linux and macOS
+
+```bash
+go install github.com/Esam-atef/APK_Scanner/cmd/apkscan@latest
+sudo mkdir -p /usr/local/bin
+sudo mv "$(go env GOPATH)/bin/apkscan" /usr/local/bin/
+apkscan -h
+```
+
+#### Windows
+
+Windows has no `/usr/local/bin`, so this creates an equivalent folder and adds it to the system `PATH`. Run PowerShell **as Administrator**:
+
+```powershell
+go install github.com/Esam-atef/APK_Scanner/cmd/apkscan@latest
+
+$dir = "C:\Program Files\apkscan"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+Move-Item -Force "$(go env GOPATH)\bin\apkscan.exe" $dir
+
+$machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+if ($machinePath -notlike "*$dir*") {
+    [Environment]::SetEnvironmentVariable("Path", "$machinePath;$dir", "Machine")
+}
+```
+
+Then **open a new terminal** (the updated `PATH` is only picked up by new sessions) and run:
+
+```powershell
+apkscan -h
+```
+
+> **Note:** Moving the binary is optional. If Go's `bin` folder is already on your `PATH`, `apkscan` works from there as is.
+
+### Option 2: Build from source
+
+Clone the repository, then build.
+
+#### Windows
+
+```powershell
+git clone https://github.com/Esam-atef/APK_Scanner.git
+cd APK_Scanner
+go build -o apkscan.exe .\cmd\apkscan
+.\apkscan.exe -h
+```
 
 *Optional:* to run `apkscan` from any folder, add the folder that contains `apkscan.exe` to your `PATH` (System Properties, Environment Variables, `Path`, Edit, New), then open a new terminal.
 
-### Linux
+#### Linux and macOS
 
-1. Install Go. Some distributions ship an older Go than 1.22, so the official tarball is the safest option. Download the Linux archive for your CPU from <https://go.dev/dl/>, then:
+```bash
+git clone https://github.com/Esam-atef/APK_Scanner.git
+cd APK_Scanner
+go build -o apkscan ./cmd/apkscan
+./apkscan -h
+```
 
-   ```bash
-   sudo rm -rf /usr/local/go
-   sudo tar -C /usr/local -xzf go*.linux-amd64.tar.gz      # use ...linux-arm64... on ARM
-   echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
-   ```
+*Optional:* install it system-wide:
 
-   Log out and back in (or run `source ~/.profile`), then check:
-
-   ```bash
-   go version
-   ```
-
-2. Build:
-
-   ```bash
-   cd path/to/apkscan          # the folder that contains go.mod
-   go mod tidy
-   go build -o apkscan ./cmd/apkscan
-   ./apkscan -h
-   ```
-
-3. *Optional:* install it system-wide:
-
-   ```bash
-   sudo install -m 0755 apkscan /usr/local/bin/apkscan
-   ```
-
-### macOS
-
-1. Install Go with Homebrew (or use the `.pkg` installer from <https://go.dev/dl/>):
-
-   ```bash
-   brew install go
-   go version
-   ```
-
-2. Build:
-
-   ```bash
-   cd path/to/apkscan          # the folder that contains go.mod
-   go mod tidy
-   go build -o apkscan ./cmd/apkscan
-   ./apkscan -h
-   ```
-
-3. *Optional:* install it system-wide:
-
-   ```bash
-   sudo mkdir -p /usr/local/bin
-   sudo install -m 0755 apkscan /usr/local/bin/apkscan
-   ```
+```bash
+sudo mkdir -p /usr/local/bin
+sudo install -m 0755 apkscan /usr/local/bin/apkscan
+```
 
 ### Building for another system
 
@@ -131,6 +151,7 @@ Remove-Item Env:GOOS, Env:GOARCH, Env:CGO_ENABLED     # back to normal builds
 |---|---|
 | `go` is not recognized / command not found | Open a new terminal after installing Go, or add Go's `bin` folder to your `PATH`. |
 | `could not import github.com/avast/apkparser` or `no required module provides package` | Run `go mod tidy` in the folder that contains `go.mod`. In VS Code, if the red underline stays, run **Go: Restart Language Server**. |
+| `apkscan` is not recognized right after `go install` | Go's `bin` folder (or the folder you moved the binary to) is not on your `PATH`. Open a new terminal, or add that folder to `PATH`. |
 | Errors mentioning an unsupported Go version | Upgrade Go to 1.22 or newer. |
 | `unexpected argument` or a "got 2 values" error | A path contains a space. Wrap it in quotes: `-f "C:\My Apps\app.apk"`. |
 

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"apkscan/internal/detector"
-	"apkscan/internal/manifest"
+	"github.com/Esam-atef/APK_Scanner/internal/detector"
+	"github.com/Esam-atef/APK_Scanner/internal/manifest"
 )
 
 type Report struct {
